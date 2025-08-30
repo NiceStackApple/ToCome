@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MentorDashboard — Final (Laporan Mingguan)</title>
+<style>
+  :root{ 
+    --bg:#0b0b0c; --card:#111; --muted:#9aa0a6; --accent:#8b5cf6; --glass:rgba(255,255,255,0.03); 
+    --text-primary: #e6eef8; --border-color: rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;font-size:14px;color:var(--text-primary)}
+  body{margin:0;background:var(--bg);padding:20px;min-height:100vh;transition: background .3s ease; display: flex; align-items: center; justify-content: center;}
+  .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start}
+  .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,0.6);border:1px solid var(--border-color); transition: background .3s ease, border-color .3s ease; position: relative;}
+  header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+  .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent), #4f46e5);display:flex;align-items:center;justify-content:center;font-weight:700; font-size: 22px;}
+  h1{margin:0;font-size:18px;letter-spacing:0.2px}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+  .focus{margin-bottom:14px}
+  .quest-list{display:flex;flex-direction:column;gap:10px}
+  .quest{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:var(--glass);border:1px solid var(--border-color)}
+  button.btn{
+    background:transparent;
+    border:1px solid var(--border-color);
+    padding:8px 10px;
+    border-radius:8px;
+    color:var(--text-primary);
+    cursor:pointer;
+    transition:all .2s ease;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05); /* Outline tipis */
+  }
+  button.primary{
+    background:var(--accent);
+    border:0;
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:all .2s ease;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3); /* Outline & shadow */
+  }
+  .btn-ghost{
+    background:transparent;
+    border:1px solid var(--border-color);
+    padding:6px 8px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:all .2s ease;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05); /* Outline tipis */
+  }
+  button.btn:hover, button.primary:hover, .btn-ghost:hover{
+    background:rgba(59, 130, 246, 0.12); /* Warna hover biru transparan */
+    border-color:var(--accent);
+    transform:translateY(-2px);
+    box-shadow: 0 0 0 1px var(--accent); /* Outline saat hover */
+  }
+  button.btn:active, button.primary:active, .btn-ghost:active{transform:translateY(0); transition: transform 0.1s;}
+  button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  button:disabled:hover{transform:none;background:inherit;border-color:inherit}
+  .small{font-size:13px;color:var(--muted)}
+  .xpbar{height:12px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:8px}
+  .xpfill{height:100%;background:linear-gradient(90deg,#7c3aed,#06b6d4);width:0%}
+  .rightcol{display:flex;flex-direction:column;gap:12px}
+  .habit{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02)}
+  .streak{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:8px;font-weight:700}
+  .badges{display:flex;gap:8px;flex-wrap:wrap}
+    .badge{
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--glass);
+    border: 1px solid var(--border-color);
+    font-size: 13px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 6px;
+    position:relative;
+    width:100%;
+    text-align:center;
+    transition: all .2s ease;
+  }
+  .badge:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .badge.unlocked{ border-color:var(--accent); opacity: 1; background: var(--glass); }
+  .badge-title{ font-weight:600; color: var(--text-primary); }
+  .badge-progress-bar{ width:80%; height:6px; background: rgba(0,0,0,0.2); border-radius:99px; overflow:hidden; margin-top:4px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.3); }
+  .badge-progress-fill{ height:100%; background: var(--accent); box-shadow: 0 0 8px 1px var(--accent); width:0%; }
+  .badge .tooltip{ visibility:hidden; width:200px; background-color: #0b0b0c; color: #fff; text-align:center; border-radius:6px; padding:8px; position:absolute; z-index:1; bottom:125%; left:50%; margin-left:-100px; opacity:0; transition:opacity 0.3s; border:1px solid rgba(255,255,255,0.1); }
+  .badge:hover .tooltip{ visibility:visible; opacity:1; }
+  .chart{height:140px;background:linear-gradient(180deg,transparent,rgba(255,255,255,0.02));display:flex;align-items:center;justify-content:center;border-radius:8px}
+  footer.small{color:var(--muted);margin-top:8px}
+  .row{display:flex;gap:8px}
+  .flexcol{display:flex;flex-direction:column;gap:8px}
+  .calendar{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;border:1px solid var(--border-color)}
+  .month-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cell{height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;background:transparent; cursor: pointer; transition: all 0.2s ease;}
+  .cell:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+  .cell.active{background:linear-gradient(90deg,#05966933,#06b6d433);border:1px solid rgba(6,182,212,0.25);font-weight:700;color:var(--text-primary)}
+  .cell.today{box-shadow:0 6px 18px rgba(99,102,241,0.08);border:1px solid var(--accent);}
+  .cell.selected{background:var(--accent);border-color:rgba(255,255,255,0.4);font-weight:700;color:#fff;}
+  .legend{display:flex;gap:6px;align-items:center;margin-top:8px}
+  .dot{width:10px;height:10px;border-radius:99px;background:#10b981}
+  .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border-color);width:95%;max-width:500px;z-index:60; box-shadow: 0 10px 40px rgba(0,0,0,0.5);}
+  .overlay{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:50; backdrop-filter: blur(4px);}
+  .tabs{display:flex;gap:8px;margin-top:12px;margin-bottom:8px;}
+  .notification{position:fixed;bottom:20px;right:20px;background:linear-gradient(90deg,var(--accent), #6366f1);padding:12px 18px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.4);z-index:100;opacity:0;transform:translateY(20px);transition:all .3s ease}
+  .notification.show{opacity:1;transform:translateY(0)}
+  .todo-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .todo-item{display:flex;gap:12px;align-items:center; background:var(--glass); padding:10px; border-radius:10px; border:1px solid var(--border-color); cursor:pointer}
+  .todo-item:hover{background:rgba(255,255,255,0.05); border-color:var(--accent);}
+  .todo-item input[type="checkbox"]{width:18px;height:18px; cursor:pointer;}
+  input[type="text"], input[type="password"], select, textarea{background: var(--glass);border: 1px solid var(--border-color);color: var(--text-primary);padding: 8px 12px;border-radius: 8px;width: 100%;transition: all 0.2s ease;}
+  input[type="text"]:focus, input[type="password"]:focus, select:focus, textarea:focus {outline: none;border-color: var(--accent);box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);}
+  .today{font-weight:700;color:var(--text-primary); font-size: 18px;}
+  .levelpill{background:rgba(255,255,255,0.03);padding:6px 10px;border-radius:999px;font-weight:700}
+  .deadline-tag { font-size: 11px; padding: 3px 6px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); margin-left: auto; white-space:nowrap; }
+  .deadline-tag.overdue { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.4); color: #fca5a5; }
+  label {margin-bottom: 4px; display: block; font-size: 13px; color: var(--muted);}
+  .input-like-field { display: flex; align-items: center; gap: 8px; background: var(--glass); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+  .input-like-field:hover { border-color: var(--accent); }
+  .input-like-field .clear-btn { margin-left:auto; padding:0 4px; font-size: 16px; background: transparent; border: 0; color: var(--muted); cursor: pointer; }
+  .input-like-field .clear-btn:hover { color: #fff; }
+  .custom-dropdown { position: relative; width: 100%; user-select: none; }
+  .dropdown-selected-value { display: flex; align-items: center; justify-content: space-between; background: var(--glass); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+  .dropdown-selected-value:hover, .custom-dropdown.open .dropdown-selected-value { border-color: var(--accent); }
+  .dropdown-selected-value::after { content: '▾'; color: var(--muted); }
+  .dropdown-options { display: none; position: absolute; top: 105%; left: 0; width: 100%; background: var(--card); border: 1px solid var(--border-color); border-radius: 8px; z-index: 70; max-height: 200px; overflow-y: auto; }
+  .custom-dropdown.open .dropdown-options { display: block; }
+  .dropdown-option { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; cursor: pointer; }
+  .dropdown-option:hover { background-color: var(--accent); }
+  .dropdown-option .stars { color: var(--muted); }
+  .dropdown-option:hover .stars { color: #fff; }
+  .quote-card { background: var(--glass); border: 1px solid var(--border-color); padding: 16px; border-radius: 10px; margin-top: 14px; text-align: center; }
+  .quote-text { font-style: italic; color: var(--text-primary); line-height: 1.6; font-size: 16px; }
+  .quote-author { margin-top: 10px; font-weight: bold; color: var(--accent); }
+
+
+  .log-item { display: flex; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); }
+  .log-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .log-time { flex-shrink: 0; }
+  #settingsBtn {
+    position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(90deg,var(--accent), #6366f1); border: none; color: white; font-size: 24px;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    cursor: pointer; z-index: 99; transition: all .2s ease;
+  }
+  #settingsBtn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 12px 30px rgba(0,0,0,0.5); }
+  .danger-zone { border: 1px solid rgba(239, 68, 68, 0.4); padding: 12px; border-radius: 8px; margin-top: 20px; background: rgba(239, 68, 68, 0.1); }
+  .danger-zone .btn { color:#fca5a5; border-color:rgba(239, 68, 68, 0.4); }
+  .settings-section { margin-top: 20px; }
+  .settings-section-title { margin:0 0 8px 0; font-size: 15px; }
+  .theme-selector { display: flex; gap: 12px; align-items: center; }
+  .theme-swatch { 
+    width: 36px; height: 36px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border-color);
+    transition: all .2s ease; display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .theme-swatch:hover { transform: scale(1.1); border-color: var(--accent); }
+  .theme-swatch.active { border-color: var(--accent); border-width: 3px; }
+  .theme-swatch.active::after { content: '✔'; color: var(--accent); font-size: 20px; font-weight: bold; }
+  .edit-btn {
+    position: absolute; top: 16px; right: 16px; background: transparent; border: none; cursor: pointer; padding: 8px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; transition: all .2s ease;
+  }
+  .edit-btn svg { width: 18px; height: 18px; stroke: var(--muted); transition: stroke .2s ease; }
+  .edit-btn:hover { background: var(--glass); }
+  .edit-btn:hover svg { stroke: var(--text-primary); }
+
+  /* Edit Mode Modal Styles */
+  .edit-sidebar {
+    background: rgba(255,255,255,0.02);
+    border-right: 1px solid var(--border-color);
+    flex-shrink: 0;
+    width: 200px;
+  }
+  .edit-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0 12px 20px 12px;
+    gap: 6px;
+  }
+  .edit-tab-btn {
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .2s ease;
+  }
+  .edit-tab-btn:hover {
+    background: var(--glass);
+  }
+  .edit-tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .edit-content {
+    padding: 20px;
+    flex-grow: 1;
+  }
+  .edit-pane .row {
+    align-items: flex-end;
+  }
+
+  /* === [BARU] Style untuk Form Login/Registrasi === */
+  #auth-container { width: 100%; max-width: 400px; }
+  .auth-card { background: var(--card); padding: 24px; border-radius: 12px; box-shadow: 0 6px 22px rgba(0,0,0,0.6); border: 1px solid var(--border-color); }
+  .auth-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+  .auth-tab { padding: 10px 16px; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 15px; }
+  .auth-tab.active { color: var(--text-primary); border-bottom: 2px solid var(--accent); font-weight: 600; }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+  .auth-form .form-group { margin-bottom: 16px; }
+  .auth-form .btn-submit { width: 100%; padding: 10px; font-size: 15px; margin-top: 8px; }
+  .auth-error { color: #fca5a5; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); padding: 10px; border-radius: 8px; margin-top: 16px; font-size: 13px; text-align: center; }
+
+  /* TAMBAHKAN BLOK CSS BARU INI */
+  /* ============================================= */
+  /* ======= [BARU] STYLE UNTUK SCROLLBAR ======== */
+  /* ============================================= */
+  /* Class umum untuk styling scrollbar minimalis */
+  .minimal-scrollbar::-webkit-scrollbar {
+  width: 4px; /* Lebar scrollbar */}
+  .minimal-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Latar belakang track transparan */}
+  .minimal-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15); /* Warna handle scrollbar */
+  border-radius: 4px;}
+  .minimal-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3); /* Warna saat cursor di atasnya */}
+  /* Aturan untuk area yang bisa di-scroll */
+  #activityLogContainer,
+  #edit-quest-utama-content,
+  #edit-daily-quest-content {
+  overflow-y: auto; /* Aktifkan scroll vertikal jika konten melebihi batas */
+  padding-right: 10px; /* Jarak agar konten tidak tertutup scrollbar */}
+  /* Batas ketinggian maksimal untuk masing-masing area */
+  #activityLogContainer {
+  max-height: 250px;}
+  #edit-quest-utama-content,
+  #edit-daily-quest-content {
+  max-height: 350px;}
+
+</style>
+</head>
+<body>
+
+<div id="auth-container">
+    <div class="auth-card">
+        <div class="auth-tabs">
+            <button id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+            <button id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+        </div>
+
+        <form id="login-form" class="auth-form active">
+            <div class="form-group">
+                <label for="login-username">Username</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <button type="submit" class="primary btn-submit">Login</button>
+        </form>
+
+        <form id="register-form" class="auth-form">
+            <div class="form-group">
+                <label for="register-username">Username</label>
+                <input type="text" id="register-username" required>
+            </div>
+            <div class="form-group">
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" required>
+            </div>
+            <div class="form-group">
+                <label for="register-confirm-password">Confirm Password</label>
+                <input type="password" id="register-confirm-password" required>
+            </div>
+            <button type="submit" class="primary btn-submit">Register</button>
+        </form>
+        <div id="auth-message" style="display: none;"></div>
+    </div>
+</div>
+
+<div id="notification-area"></div>
+
+<div class="container" style="display: none;">
+  <div class="card">
+    
+
+    <header>
+      <div class="logo">MD</div>
+      <div>
+        <h1>MentorDashboard — Final</h1>
+        <p class="lead" data-lang-key="appSubtitle">Gamified dashboard with streaks, levels, and achievement badges.</p>
+      </div>
+     <button class="btn-ghost" onclick="openEditModeModal()" style="margin-left: auto; padding: 6px 10px;">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+    </svg>
+</button>
+    </header>
+    <section class="focus">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 12px;">
+        <div>
+          <div class="small" id="dateDisplay">Hari ini</div>
+          <div class="today" id="todayFocusTitle" style="margin-top:4px;">...</div>
+          <div class="small muted" id="todayFocusDesc">...</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="small"><span data-lang-key="level">Level</span> <span id="levelNum">1</span></div>
+          <div class="levelpill" id="xpTxt" style="font-size: 18px; font-weight: bold; margin-top:4px; display: inline-block;">0 XP</div>
+        </div>
+      </div>
+      <div class="xpbar" style="width:100%;"><div class="xpfill" id="xpFill"></div></div>
+    </section>
+    <section>
+      <h3 style="margin:8px 0">Quest Utama</h3>
+      <div class="quest-list" id="mainQuestContainer">
+        </div>
+    </section>
+
+    <section style="margin-top:12px">
+      <h3 style="margin:8px 0" data-lang-key="dailyQuests">Daily Quests</h3>
+      <div class="quest-list" id="dailyQuestList">
+        </div>
+    </section>
+    <section style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="small" data-lang-key="academicQuestTitle">Academic Quest (pilih difficulty)</div>
+      </div>
+      <div class="row">
+        <button class="btn" onclick="completeAcademic('Easy', false)" data-lang-key="aqEasy">Latihan</button>
+        <button class="btn" onclick="completeAcademic('Medium', false)" data-lang-key="aqMedium">Review Materi</button>
+        <button class="btn" onclick="completeAcademic('Hard', false)" data-lang-key="aqHard">Materi Baru</button>
+      </div>
+    </section>
+    <section style="margin-top:14px" class="center">
+      <div style="width:100%">
+        <div class="small" data-lang-key="weeklyXPChart">Grafik XP Mingguan</div>
+        <canvas id="xpChart" width="760" height="140" style="width:100%;height:140px;border-radius:8px;background:transparent"></canvas>
+      </div>
+    </section>
+    <section id="quoteSection" class="quote-card">
+        <p id="quoteText" class="quote-text">...</p>
+        <p id="quoteAuthor" class="quote-author">- ...</p>
+    </section>
+    <section class="card" style="margin-top: 18px; padding: 16px;">
+        <h3 style="margin-top:0; margin-bottom: 12px; font-size: 16px;" data-lang-key="activityLog">Log Aktivitas</h3>
+        <div id="activityLogContainer" class="flexcol minimal-scrollbar" style="gap: 8px;">
+        </div>
+    </section>
+  </div>
+  <aside class="rightcol">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div class="small" data-lang-key="habitsAndStreaks">Habits & Streaks</div>
+        <div class="small muted" data-lang-key="streaksInfo">Streak diperhitungkan harian</div>
+      </div>
+      <div class="flexcol" id="streaksDisplay"></div>
+      <div id="calendarWrap" style="margin-top:10px" class="calendar">
+        <div class="month-head">
+          <div class="small" id="monthLabel">Bulan</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn" onclick="prevMonth()">‹</button>
+            <button class="btn" onclick="nextMonth()">›</button>
+          </div>
+        </div>
+        <div class="grid" id="calGrid"></div>
+        <div class="legend"><div class="dot"></div><div class="small" data-lang-key="calendarLegend">Semua habit selesai</div></div>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center">
+        <div class="small" data-lang-key="badges">Badges</div>
+        <div class="small muted" id="badgeCounter">0</div>
+      </div>
+      <div class="flexcol" id="badgesArea" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="small">To-do</div>
+        <div class="small muted" id="todoCounter">0 Pending</div>
+      </div>
+      <div style="margin-top:8px">
+        <div style="display:flex;gap:8px">
+          <button class="btn primary" style="width:100%" onclick="addTodo()" data-lang-key="addTodo">+ Add To Do</button>
+        </div>
+        <div class="row" style="justify-content:space-between; align-items:center;">
+            <div class="tabs">
+              <button class="btn primary" id="btnPending" onclick="setTodoFilter('pending')" data-lang-key="pending">Pending</button>
+              <button class="btn" id="btnDone" onclick="setTodoFilter('done')" data-lang-key="done">Done</button>
+            </div>
+            <div id="sort-dropdown" class="custom-dropdown" style="width: 150px;">
+              <div id="sort-selected-value" class="dropdown-selected-value" style="padding: 6px 10px; font-size:13px;" data-lang-key="sortRecent">Sort: Recent</div>
+              <div id="sort-options" class="dropdown-options">
+                <div class="dropdown-option" data-value="recent" data-lang-key="sortRecentOption">Recent</div>
+                <div class="dropdown-option" data-value="deadline_asc" data-lang-key="sortDeadlineAsc">Deadline Terdekat</div>
+                <div class="dropdown-option" data-value="deadline_desc" data-lang-key="sortDeadlineDesc">Deadline Terlama</div>
+              </div>
+            </div>
+        </div>
+        <div class="todo-list" id="todoList"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="editProfileModal" style="display:none;">
+    <div class="overlay" onclick="closeProfileModal()"></div>
+    <div class="modal">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h3 style="margin:0;">Edit Profil</h3>
+            <div>
+                <button class="btn" onclick="closeProfileModal()">Batal</button>
+                <button class="primary" onclick="saveProfile()">Simpan</button>
+            </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div>
+                <label for="profile-logo-input">Teks Logo (2-3 huruf)</label>
+                <input id="profile-logo-input" type="text" maxlength="3" placeholder="Contoh: NIC"/>
+            </div>
+            <div>
+                <label for="profile-title-input">Judul Dasbor</label>
+                <input id="profile-title-input" type="text" placeholder="Contoh: Nico Private"/>
+            </div>
+            <div>
+                <label for="profile-description-input">Deskripsi</label>
+                <input id="profile-description-input" type="text" placeholder="Contoh: Menuju 2026"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editTodoModal" style="display:none;">
+  <div class="overlay" onclick="closeEditModal()"></div>
+  <div class="modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px;">
+      <h3 id="modal-title" style="margin:0;">Edit To Do</h3>
+      <div>
+        <button class="btn" onclick="closeEditModal()" data-lang-key="cancel">Cancel</button>
+        <button class="primary" onclick="saveTodo()" data-lang-key="save">Save</button>
+      </div>
+    </div>
+    <div>
+      <label class="small muted" data-lang-key="titleLabel">Title*</label>
+      <input id="todo-title" type="text" data-lang-key-placeholder="addTitlePlaceholder" placeholder="Add a title" style="margin-top:4px;"/>
+    </div>
+    <div style="margin-top:12px;">
+      <label class="small muted" data-lang-key="notesLabel">Notes</label>
+      <textarea id="todo-notes" data-lang-key-placeholder="addNotesPlaceholder" placeholder="Add notes (Markdown supported)" rows="3" style="margin-top:4px; resize: vertical;"></textarea>
+    </div>
+    <div class="row" style="margin-top:12px; align-items: flex-end;">
+        <div style="flex:1">
+            <label class="small muted" data-lang-key="deadlineLabel">Deadline</label>
+            <div id="todo-deadline-container" class="input-like-field" style="margin-top:4px;" onclick="toggleCalendarPicker()">
+                <span>📅</span>
+                <span id="todo-deadline-text" style="flex:1;">No date set</span>
+                <button id="clear-deadline-btn" class="clear-btn" onclick="clearDeadline(event)">×</button>
+            </div>
+        </div>
+        <div style="flex:1">
+            <label class="small muted" data-lang-key="difficultyLabel">Difficulty</label>
+            <div id="custom-difficulty-dropdown" class="custom-dropdown" style="margin-top:4px;">
+              <div id="difficulty-selected-value" class="dropdown-selected-value"></div>
+              <div id="difficulty-options" class="dropdown-options">
+                <div class="dropdown-option" data-value="Trivial">Trivial <span class="stars">✦</span></div>
+                <div class="dropdown-option" data-value="Easy">Easy <span class="stars">✦✦</span></div>
+                <div class="dropdown-option" data-value="Medium">Medium <span class="stars">✦✦✦</span></div>
+                <div class="dropdown-option" data-value="Hard">Hard <span class="stars">✦✦✦✦</span></div>
+              </div>
+            </div>
+            <input type="hidden" id="todo-difficulty-value">
+        </div>
+    </div>
+    <div id="todo-calendar-picker" class="calendar" style="display:none; margin-top:8px;">
+        <div class="month-head">
+            <div class="small" id="deadlineMonthLabelModal">Bulan</div>
+            <div style="display:flex;gap:6px">
+                <button class="btn-ghost" onclick="prevDeadlineMonth()">‹</button>
+                <button class="btn-ghost" onclick="nextDeadlineMonth()">›</button>
+            </div>
+        </div>
+        <div class="grid" id="deadlineCalGridModal"></div>
+    </div>
+    <div id="delete-todo-area" style="margin-top:24px; border-top: 1px solid var(--border-color); padding-top:16px; text-align:right;">
+        <button class="btn" style="color:#fca5a5; border-color:rgba(239, 68, 68, 0.4);" onclick="deleteTodoInModal()" data-lang-key="deleteTodo">Delete this To Do</button>
+    </div>
+  </div>
+</div>
+
+<div id="dailyLogModal" style="display:none;">
+  <div class="overlay" onclick="closeDailyLogModal()"></div>
+  <div class="modal" style="max-width: 400px;">
+    <h3 id="dailyLogTitle" style="margin-top:0;"></h3>
+    <div id="dailyLogContent" class="flexcol" style="gap: 12px;"></div>
+    <div style="text-align:right; margin-top: 16px;">
+        <button class="btn" onclick="closeDailyLogModal()" data-lang-key="close">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div id="weeklyReportModal" style="display:none;">
+  <div class="overlay" onclick="closeWeeklyReportModal()"></div>
+  <div class="modal" style="max-width: 450px;">
+    <h3 style="margin-top:0;" data-lang-key="weeklyReportTitle">📊 Laporan Mingguan</h3>
+    <p class="small" id="weeklyReportDateRange"></p>
+    <div id="weeklyReportContent" class="flexcol" style="gap: 12px; margin-top: 16px;"></div>
+    <div style="text-align:right; margin-top: 20px;">
+        <button class="primary" onclick="closeWeeklyReportModal()" data-lang-key="weeklyReportButton">Mantap, Lanjutkan!</button>
+    </div>
+  </div>
+</div>
+
+<button id="settingsBtn" onclick="openSettingsModal()" style="display: none;">⚙️</button>
+<input type="file" id="importFile" style="display:none;" onchange="importData(event)" accept=".json">
+
+<div id="settingsModal" style="display:none;">
+  <div class="overlay" onclick="closeSettingsModal()"></div>
+  <div class="modal" style="max-width: 450px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0;" data-lang-key="settingsTitle">Pengaturan</h3>
+        <button class="btn" onclick="closeSettingsModal()" data-lang-key="close">Tutup</button>
+    </div>
+    
+    <div class="settings-section">
+        <h4 class="settings-section-title">Akun</h4>
+        <button class="btn" onclick="handleLogout()">Logout</button>
+        <p class="small" style="margin-top: 4px;">Keluar dari sesi Anda saat ini.</p>
+    </div>
+
+    <div class="settings-section">
+        <h4 class="settings-section-title" data-lang-key="language">Bahasa / Language</h4>
+        <div class="row">
+            <button class="btn" id="lang-btn-id" onclick="setLanguage('id')">Bahasa Indonesia</button>
+            <button class="btn" id="lang-btn-en" onclick="setLanguage('en')">English</button>
+        </div>
+    </div>
+    <div class="settings-section">
+        <h4 class="settings-section-title" data-lang-key="theme">Theme</h4>
+        <p class="small" style="margin-top: -4px; margin-bottom: 12px;" data-lang-key="themeDesc">Adjust the color of the interface for better visibility.</p>
+        <div class="theme-selector">
+            <div class="theme-swatch" id="theme-swatch-light" onclick="setTheme('light')" style="background-color: #e2e8f0;"></div>
+            <div class="theme-swatch" id="theme-swatch-purple" onclick="setTheme('purple')" style="background-color: #8b5cf6;"></div> <div class="theme-swatch" id="theme-swatch-viola" onclick="setTheme('viola')" style="background-color: #3b82f6;"></div>
+            <div class="theme-swatch" id="theme-swatch-graphite" onclick="setTheme('graphite')" style="background-color: #262626;"></div>
+            <div class="theme-swatch" id="theme-swatch-abyss" onclick="setTheme('abyss')" style="background-color: #0a0a0a;"></div>
+        </div>
+    </div>
+    <div class="settings-section">
+        <h4 class="settings-section-title" data-lang-key="general">Umum</h4>
+        <button class="btn" onclick="simulateDayAdvance()" data-lang-key="simDay">Simulasi Hari Berikutnya</button>
+        <p class="small" style="margin-top: 4px;" data-lang-key="simDayDesc">Gunakan ini untuk testing...</p>
+    </div>
+    <div class="settings-section">
+        <h4 class="settings-section-title" data-lang-key="dataManagement">Manajemen Data</h4>
+        <div class="row">
+            <button class="btn" onclick="exportData()" data-lang-key="exportData">Ekspor Data</button>
+            <button class="btn" onclick="document.getElementById('importFile').click()" data-lang-key="importData">Impor Data</button>
+        </div>
+        <p class="small" style="margin-top: 4px;" data-lang-key="dataManagementDesc">Simpan progres Anda...</p>
+    </div>
+    <div class="danger-zone">
+        <h4 class="settings-section-title" data-lang-key="dangerZone">Zona Berbahaya</h4>
+        <button class="btn" onclick="resetData()" data-lang-key="resetData">Reset Semua Data</button>
+        <p class="small" style="margin-top: 4px;" data-lang-key="dangerZoneDesc">Tindakan ini akan menghapus seluruh progres Anda...</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================================================================================
+// ============================= KONFIGURASI & DATABASE ==============================
+// ===================================================================================
+
+let DATA;
+const USERS_KEY = 'mentor_dashboard_users';
+const CURRENT_USER_KEY = 'mentor_dashboard_currentUser';
+
+const THEMES = {
+    'light': { '--bg': '#f4f4f5', '--card': '#ffffff', '--muted': '#52525b', '--accent': '#3b82f6', '--glass': 'rgba(0,0,0,0.03)', '--text-primary': '#18181b', '--border-color': 'rgba(0,0,0,0.1)' },
+    'viola': { '--bg': '#0b0b0c', '--card': '#111', '--muted': '#9aa0a6', '--accent': '#3b82f6', '--glass': 'rgba(255,255,255,0.03)', '--text-primary': '#e6eef8', '--border-color': 'rgba(255,255,255,0.03)' },
+    'graphite': { '--bg': '#1c1c1c', '--card': '#262626', '--muted': '#a1a1aa', '--accent': '#3b82f6', '--glass': 'rgba(255,255,255,0.05)', '--text-primary': '#e2e8f0', '--border-color': 'rgba(255,255,255,0.08)' },
+    'abyss': { '--bg': '#000000', '--card': '#0a0a0a', '--muted': '#a1a1aa', '--accent': '#3b82f6', '--glass': 'rgba(255,255,255,0.04)', '--text-primary': '#e2e8f0', '--border-color': 'rgba(255,255,255,0.09)' }, 
+    'purple': { '--bg': '#0f0f12', '--card': '#1a1a1f', '--muted': '#9aa0a6', '--accent': '#8b5cf6', '--glass': 'rgba(255,255,255,0.04)', '--text-primary': '#e6eef8', '--border-color': 'rgba(255,255,255,0.05)' },
+};
+
+const TRANSLATIONS = {
+    appSubtitle: { en: 'Gamified dashboard with streaks, levels, and achievement badges.', id: 'Dasbor gamifikasi dengan streak, level, dan badge pencapaian.' },
+    level: { en: 'Level', id: 'Level' },
+    dailyQuests: { en: 'Daily Quests (Habits)', id: 'Daily Quests' },
+    academicQuestTitle: { en: 'Academic Quest (choose difficulty)', id: 'Academic Quest (pilih difficulty)' },
+    aqEasy: { en: 'Practice', id: 'Latihan' },
+    aqMedium: { en: 'Review Material', id: 'Review Materi' },
+    aqHard: { en: 'New Material', id: 'Materi Baru' },
+    weeklyXPChart: { en: 'Weekly XP Chart', id: 'Grafik XP Mingguan' },
+    activityLog: { en: 'Activity Log', id: 'Log Aktivitas' },
+    habitsAndStreaks: { en: 'Habits & Streaks', id: 'Habits & Streaks' },
+    streaksInfo: { en: 'Streaks are calculated daily', id: 'Streak diperhitungkan harian' },
+    mainQuestStreak: { en: 'Main Quest Streak', id: 'Streak Quest Utama' },
+    mainQuestStreakDesc: { en: 'Complete the Academic Quest', id: 'Selesaikan Academic Quest' },
+    dailyHabitsStreak: { en: 'Daily Habits Streak', id: 'Streak Habits Harian' },
+    dailyHabitsStreakDesc: { en: 'Complete all daily habits', id: 'Selesaikan semua daily habits' },
+    calendarLegend: { en: 'All habits completed', id: 'Semua habit selesai' },
+    badges: { en: 'Badges', id: 'Badges' },
+    addTodo: { en: '+ Add To Do', id: '+ Tambah To Do' },
+    pending: { en: 'Pending', id: 'Pending' },
+    done: { en: 'Done', id: 'Selesai' },
+    sortRecent: { en: 'Sort: Recent', id: 'Urutkan: Terbaru' },
+    sortRecentOption: { en: 'Recent', id: 'Terbaru' },
+    sortDeadlineAsc: { en: 'Deadline Asc', id: 'Deadline Terdekat' },
+    sortDeadlineDesc: { en: 'Deadline Desc', id: 'Deadline Terlama' },
+    editTodoTitle: { en: 'Edit To Do', id: 'Edit To Do' },
+    addTodoTitle: { en: 'Add To Do', id: 'Tambah To Do' },
+    cancel: { en: 'Cancel', id: 'Batal' },
+    save: { en: 'Save', id: 'Simpan' },
+    titleLabel: { en: 'Title*', id: 'Judul*' },
+    addTitlePlaceholder: { en: 'Add a title', id: 'Tambahkan judul' },
+    notesLabel: { en: 'Notes', id: 'Catatan' },
+    addNotesPlaceholder: { en: 'Add notes (Markdown supported)', id: 'Tambahkan catatan (Markdown didukung)' },
+    deadlineLabel: { en: 'Deadline', id: 'Tenggat' },
+    noDateSet: { en: 'No date set', id: 'Tidak ada tanggal' },
+    difficultyLabel: { en: 'Difficulty', id: 'Kesulitan' },
+    deleteTodo: { en: 'Delete this To Do', id: 'Hapus To Do ini' },
+    xpForThatDay: { en: 'XP for that day:', id: 'XP hari itu:' },
+    dailyQuestsLabel: { en: 'Daily Quests:', id: 'Daily Quests:' },
+    doneLabel: { en: 'Done', id: 'Selesai' },
+    notDoneLabel: { en: 'Not Done', id: 'Belum Selesai' },
+    academicQuestsDone: { en: 'Academic Quests Completed:', id: 'Quest Akademik Selesai:' },
+    todosDone: { en: 'To-dos Completed:', id: 'To-do Selesai:' },
+    close: { en: 'Close', id: 'Tutup' },
+    weeklyReportTitle: { en: '📊 Weekly Report', id: '📊 Laporan Mingguan' },
+    weeklyReportButton: { en: 'Awesome, Keep Going!', id: 'Mantap, Lanjutkan!' },
+    totalXPGained: { en: 'Total XP Gained:', id: 'Total XP Didapat:' },
+    perfectDays: { en: 'Perfect Days (All Daily Quests):', id: 'Hari Sempurna (Semua Daily Quest):' },
+    daysUnit: { en: 'days', id: 'hari' },
+    todosCreated: { en: 'To-dos Created:', id: 'To-do Dibuat:' },
+    settingsTitle: { en: 'Settings', id: 'Pengaturan' },
+    language: { en: 'Language', id: 'Bahasa' },
+    theme: { en: 'Theme', id: 'Tema' },
+    themeDesc: { en: 'Adjust the color of the interface for better visibility.', id: 'Sesuaikan warna antarmuka untuk visibilitas yang lebih baik.'},
+    general: { en: 'General', id: 'Umum' },
+    simDay: { en: 'Simulate Next Day', id: 'Simulasi Hari Berikutnya' },
+    simDayDesc: { en: 'Use this for testing. It will advance the day by 1, reset daily quests, and check streaks.', id: 'Gunakan ini untuk testing. Akan memajukan hari sebanyak 1 hari, mereset quest harian, dan memeriksa streak.' },
+    dataManagement: { en: 'Data Management', id: 'Manajemen Data' },
+    exportData: { en: 'Export Data', id: 'Ekspor Data' },
+    importData: { en: 'Import Data', id: 'Impor Data' },
+    dataManagementDesc: { en: 'Save your progress as a backup file or move it to another device.', id: 'Simpan progres Anda sebagai file cadangan atau pindahkan ke perangkat lain.' },
+    dangerZone: { en: 'Danger Zone', id: 'Zona Berbahaya' },
+    resetData: { en: 'Reset All Data', id: 'Reset Semua Data' },
+    dangerZoneDesc: { en: 'This action will permanently delete all your progress. It cannot be undone.', id: 'Tindakan ini akan menghapus seluruh progres Anda secara permanen. Tidak bisa dibatalkan.' },
+};
+
+const QUOTES_DB = {
+  "Agusleo Halim": ["Bisnis itu bukan soal ide doang, tapi soal eksekusi tanpa henti.","Kalau lu takut gagal, lu bakal gagal terus tanpa mulai.","Lu nggak bisa kaya cuma dari nabung, lu harus berani investasi.","Network lu itu lebih berharga daripada tabungan lu.","Orang malas selalu kalah sama orang konsisten.","Kalau lu nggak mau belajar, siap-siap dibodohi orang lain.","Lu harus jadi problem solver, bukan cuma pengeluh.","Semua orang bisa mulai kecil, tapi nggak semua orang mau mikir besar.","Banyak orang nunggu momen yang pas, padahal momen yang pas itu dibikin.","Bisnis yang bagus itu bukan yang keren, tapi yang menghasilkan.","Orang sukses fokus cari solusi, orang gagal sibuk nyalahin keadaan.","Kalau lu nggak bisa ngatur duit kecil, lu nggak akan pernah pegang duit besar.","Mental pengusaha itu tahan banting, bukan baperan.","Lu nggak bisa nyenengin semua orang, tapi lu bisa bikin mereka respek sama kerja keras lu.","Modal terbesar itu bukan uang, tapi mindset.","Orang biasa pikir hasil, pengusaha pikir proses.","Kalau lu pengen hasil beda, jangan ulang kebiasaan lama.","Orang sukses itu bukan yang paling pinter, tapi yang paling tahan lama.","Bisnis gagal itu wajar, yang nggak wajar itu lu nyerah terlalu cepet.","Uang itu hasil sampingan dari value yang lu kasih ke orang.","Kalau lu nggak bisa jual, lu nggak bisa bisnis.","Kesempatan itu nggak hilang, dia pindah ke orang lain yang lebih siap.","Banyak orang mau kaya, tapi dikit yang siap capek.","Kalau nggak rela berkorban, jangan mimpi hasil besar.","Mindset miskin bikin lu miskin, mindset kaya bikin lu cari cara."],
+  "Ferry Irwandi": ["Lu harus tahan banting, hidup nggak akan selalu sesuai rencana.","Nggak ada shortcut, yang ada cuma kerja keras tiap hari.","Kalau nggak disiplin, lu bakal keok sama keadaan.","Hasil itu nggak instan, sabar sambil gas terus.","Orang gagal nyari alasan, orang sukses nyari cara.","Kalau mental lu lemah, jangan harap bisa jadi pemenang.","Sukses itu hak semua orang, tapi cuma buat yang mau berjuang.","Lu mau dihargai orang? Buktiin dulu dengan hasil.","Nggak semua orang dukung lu, tapi jangan biarin itu nge-rem lu.","Bangun pagi bukan buat gaya-gayaan, tapi biar selangkah lebih depan.","Kegagalan itu latihan, bukan alasan berhenti.","Kalau lu nggak bisa tahan capek, lu bakal tahan miskin.","Nggak semua orang bisa ngerti perjuangan lu, tapi hasil nggak bisa dibantah.","Kerja keras itu wajib, tapi cerdas itu pelengkap.","Kalau nggak punya mimpi, lu cuma jadi pion orang lain.","Setiap kali lu males, ingat ada orang lain yang lagi kerja keras ambil kesempatan lu.","Disiplin itu sakit, tapi penyesalan lebih sakit.","Lu nggak butuh motivasi tiap hari, lu butuh komitmen.","Kesuksesan itu nggak dateng ke orang manja.","Kalau lu berhenti sekarang, semua capek lu kemarin sia-sia.","Orang kuat bukan yang nggak jatuh, tapi yang bangkit tiap kali jatuh.","Lu nggak harus sempurna, lu cuma harus konsisten.","Kalau mau gampang, hidup lu bakal susah. Kalau mau susah, hidup lu bakal gampang.","Nggak semua orang sukses itu jenius, tapi semua orang sukses itu rajin.","Lu harus kerja kayak nggak ada besok, biar hasilnya kerasa."],
+  "Raymond Chin": ["Data nggak bohong, tapi lu seringnya males baca data.","Kalau lu nggak ngerti duit, duit nggak bakal ngerti lu.","Investasi itu bukan buat yang kaya, tapi biar lu bisa kaya.","Jangan gambling, analisa dulu baru action.","Hidup itu bukan feeling, tapi decision yang logis.","Kalau lu cuma ikut-ikut an, jangan heran kalau nyesel belakangan.","Risiko itu ada, tapi bisa diminimalisir kalau lu ngerti ilmunya.","Lu nggak bisa ngatur apa yang nggak lu ukur.","Orang pintar itu bukan yang banyak teori, tapi yang bisa eksekusi pakai logika.","Kalau lu mau aman doang, lu bakal stuck di tempat.","Financial freedom itu bukan mimpi, itu matematika.","Kalau pengeluaran lu lebih gede dari pemasukan, jangan salahin ekonomi.","Banyak orang mau kaya, tapi nggak mau belajar finance basic.","Diversifikasi itu bukan gaya-gayaan, tapi biar lu nggak panik kalau rugi.","Warren Buffett juga mulai dari kecil, bedanya dia konsisten.","Kalau lu pengen return besar tanpa risiko, lu lagi halu.","Decision terbaik itu berdasarkan data, bukan emosi.","Banyak orang takut gagal, padahal gagal itu bagian dari statistik.","Kalau lu nggak ngerti sesuatu, jangan invest di situ.","Orang sukses ngerti cara bikin uang kerja buat dia.","Belajar finance itu skill seumur hidup, bukan sekali jadi.","Kalau lu males mikir jangka panjang, jangan mimpi bebas finansial.","Orang gagal sibuk flexing, orang sukses sibuk compounding.","Kalau lu nggak punya plan, lu lagi rencanain gagal.","Uang itu alat, jangan jadi budak alat."],
+  "Timothy Ronald": ["Bro, lu jangan cuma jadi penonton, hidup lu tuh film utama.","Kalau lu kebanyakan scroll, kapan lu ngejalanin mimpi lu?","Anak muda sekarang sibuk gaya, lupa nabung buat masa depan.","Kalau lu nggak mulai sekarang, besok lu bakal nyesel.","Mending capek ngejar mimpi, daripada capek nyesel.","Bro, lu nggak harus kaya dulu buat mulai, mulai aja dulu.","Kalau lu males, inget aja tagihan nggak bakal nunggu.","Hidup itu sekali, jangan buang buat hal receh.","Lu terlalu banyak mikir, akhirnya nggak ngapa-ngapain.","Kalau lu masih takut omongan orang, berarti lu belum merdeka.","Lu nggak bakal sukses kalau mindset lu masih pengen instan.","Kalau lu sibuk nge-judge orang, berarti lu nggak sibuk nge-upgrade diri.","Bro, hidup bukan kompetisi flexing, tapi kompetisi value.","Kalau lu cuma rebahan, jangan heran kalau hasil lu juga rebahan.","Lebih baik salah karena coba, daripada nggak pernah nyoba.","Lu nggak usah cari validasi, hasil lu yang bakal validasi diri lu.","Kalau lu mau beda, siap-siap dikatain. Biasa itu.","Bro, kesempatan nggak ngetuk pintu dua kali.","Kalau lu masih nunda, sadar aja: waktu nggak bisa di-refund.","Anak muda harus berani gagal, biar tau rasanya belajar.","Kalau lu nggak belajar skill baru, lu bakal ketinggalan.","Lu bisa pilih: lu kerja buat mimpi orang, atau orang kerja buat mimpi lu.","Banyak yang sibuk iri, padahal nggak sibuk improve diri.","Bro, kalau lu nggak tahan kritik, lu nggak bakal tahan sukses.","Mending dihina gara-gara berjuang, daripada dihina gara-gara nyerah."]
+};
+
+const BADGE_DATABASE = {
+  'todo_streak_3':   { icon: '🔥', title: 'On Fire', desc: 'Menyelesaikan to-do 3 hari beruntun.', trigger: { type: 'todo_streak', value: 3 } },
+  'todo_streak_7':   { icon: '🎯', title: 'Focused', desc: 'Menyelesaikan to-do 7 hari beruntun.', trigger: { type: 'todo_streak', value: 7 } },
+  'todo_streak_30':  { icon: '⚡', title: 'Consistent', desc: 'Menyelesaikan to-do 30 hari beruntun.', trigger: { type: 'todo_streak', value: 30 } },
+  'todo_total_10':   { icon: '✅', title: 'Task Initiator', desc: 'Menyelesaikan total 10 to-do.', trigger: { type: 'total_todos', value: 10 } },
+  'todo_total_50':   { icon: '📈', title: 'Task Executor', desc: 'Menyelesaikan total 50 to-do.', trigger: { type: 'total_todos', value: 50 } },
+  'todo_total_100':  { icon: '🚀', title: 'Task Master', desc: 'Menyelesaikan total 100 to-do.', trigger: { type: 'total_todos', value: 100 } },
+  'habit_streak_7':  { icon: '🌱', title: 'Seed of Discipline', desc: 'Menyelesaikan semua habit 7 hari beruntun.', trigger: { type: 'habit_streak', value: 7 } },
+  'habit_streak_30': { icon: '🌳', title: 'Tree of Habit', desc: 'Menyelesaikan semua habit 30 hari beruntun.', trigger: { type: 'habit_streak', value: 30 } },
+  'level_10':  { icon: '🛠️', title: 'Apprentice', desc: 'Mencapai Level 10.', trigger: { type: 'level', value: 10 } },
+  'level_25':  { icon: '🎓', title: 'Specialist', desc: 'Mencapai Level 25.', trigger: { type: 'level', value: 25 } },
+  'level_50':  { icon: '👨‍🏫', title: 'Mentor', desc: 'Mencapai Level 50.', trigger: { type: 'level', value: 50 } },
+  'aq_total_10':   { icon: '📖', title: 'Bookworm', desc: 'Menyelesaikan 10 Quest Akademik.', trigger: { type: 'total_aq', value: 10 } },
+  'aq_total_50':   { icon: '🧑‍🔬', title: 'Researcher', desc: 'Menyelesaikan 50 Quest Akademik.', trigger: { type: 'total_aq', value: 50 } },
+  'aq_total_100':  { icon: '🎓', title: 'Scholar', desc: 'Menyelesaikan 100 Quest Akademik.', trigger: { type: 'total_aq', value: 100 } },
+};
+
+const BADGE_CATEGORIES = { 'todo_streak': {title: 'To-do Streak', keys: ['todo_streak_3', 'todo_streak_7', 'todo_streak_30']}, 'total_todos': {title: 'Task Completion', keys: ['todo_total_10', 'todo_total_50', 'todo_total_100']}, 'habit_streak': {title: 'Habits Streak', keys: ['habit_streak_7', 'habit_streak_30']}, 'level': {title: 'Level Up', keys: ['level_10', 'level_25', 'level_50']}, 'total_aq': {title: 'Academic Quests', keys: ['aq_total_10', 'aq_total_50', 'aq_total_100']}, };
+
+let todoFilter = 'pending';
+let todoSortOrder = 'recent';
+let calendarView = { year: new Date().getFullYear(), month: new Date().getMonth() };
+let editingTodoIndex = null;
+let selectedDeadline = null;
+let deadlineCalendarView = { year: new Date().getFullYear(), month: new Date().getMonth() };
+
+// ===================================================================================
+// ============================= FUNGSI AUTENTIKASI ==================================
+// ===================================================================================
+
+function initAuth() {
+    const currentUser = localStorage.getItem(CURRENT_USER_KEY);
+    if (currentUser) {
+        document.getElementById('auth-container').style.display = 'none';
+        document.querySelector('.container').style.display = 'grid';
+        document.getElementById('settingsBtn').style.display = 'flex';
+        loadAndRenderDashboard();
+    } else {
+        document.getElementById('auth-container').style.display = 'block';
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('settingsBtn').style.display = 'none';
+    }
+}
+
+function switchAuthTab(tabName) {
+    document.querySelectorAll('.auth-tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    document.getElementById(`${tabName}-form`).classList.add('active');
+    hideAuthMessage();
+}
+
+function showAuthMessage(message, isError = true) {
+    const msgEl = document.getElementById('auth-message');
+    msgEl.textContent = message;
+    if (isError) {
+       msgEl.style.color = '#fca5a5';
+       msgEl.style.background = 'rgba(239, 68, 68, 0.1)';
+       msgEl.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+    } else {
+       msgEl.style.color = '#86efac';
+       msgEl.style.background = 'rgba(34, 197, 94, 0.1)';
+       msgEl.style.border = '1px solid rgba(34, 197, 94, 0.4)';
+    }
+    msgEl.style.display = 'block';
+}
+
+function hideAuthMessage() {
+    document.getElementById('auth-message').style.display = 'none';
+}
+
+function handleRegister(event) {
+    event.preventDefault();
+    hideAuthMessage();
+    const username = document.getElementById('register-username').value.trim();
+    const pass = document.getElementById('register-password').value;
+    const confirmPass = document.getElementById('register-confirm-password').value;
+
+    if (!username || !pass || !confirmPass) {
+        showAuthMessage('Semua field harus diisi.');
+        return;
+    }
+    if (pass !== confirmPass) {
+        showAuthMessage('Password dan konfirmasi password tidak cocok.');
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+    if (users[username]) {
+        showAuthMessage('Username sudah digunakan. Silakan pilih yang lain.');
+        return;
+    }
+
+    users[username] = { password: pass };
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    showAuthMessage('Registrasi berhasil! Silakan login.', false);
+    document.getElementById('register-form').reset();
+    switchAuthTab('login');
+}
+
+function handleLogin(event) {
+    event.preventDefault();
+    hideAuthMessage();
+    const username = document.getElementById('login-username').value.trim();
+    const pass = document.getElementById('login-password').value;
+
+    if (!username || !pass) {
+        showAuthMessage('Username dan password harus diisi.');
+        return;
+    }
+
+    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '{}');
+    if (!users[username] || users[username].password !== pass) {
+        showAuthMessage('Username atau password salah.');
+        return;
+    }
+
+    localStorage.setItem(CURRENT_USER_KEY, username);
+    initAuth();
+}
+
+function handleLogout() {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    location.reload();
+}
+
+// ===================================================================================
+// ============================= MANAJEMEN DATA & STATE ==============================
+// ===================================================================================
+
+function getStorageKey() {
+    const currentUser = localStorage.getItem(CURRENT_USER_KEY);
+    return `mentor_dashboard_data_${currentUser}`;
+}
+
+function getInitialDataStructure() {
+    const init = {
+        xp:0, level:1, dayOffset:0,
+        mainQuestStreak: 0, lastMainQuestDate: null,
+        habitsStreak: 0, lastHabitsDate: null,
+        todoStreak: 0, lastTodoDate: null,
+        totalTodosCompleted: 0,
+        totalAcademicQuestsCompleted: 0,
+        unlockedBadges: [],
+        todoLog: [],
+        academicQuestLog: [],
+        activityLog: [],
+        xpHistory: {}, 
+        dailyHabits: {},
+        lastVisitDate: null,
+        lastWeeklyReportDate: null,
+        language: 'id',
+        theme: 'viola',
+        userProfile: {
+            logo: 'MD',
+            title: 'MentorDashboard',
+            description: 'Dasbor gamifikasi dengan streak, level, dan badge pencapaian.'
+        },
+        // [UBAH] Struktur focusMap sekarang menjadi objek dengan title dan desc
+        focusMap: {
+          'Senin': { title: 'MTK', desc: 'Selesaikan 20 soal' },
+          'Kamis': { title: 'MTK', desc: 'Selesaikan 20 soal' },
+          'Selasa': { title: 'Dicoding (Python/ML)', desc: 'Selesaikan 1 modul / 30 menit coding' },
+          'Jumat': { title: 'Dicoding (Python/ML)', desc: 'Selesaikan 1 modul / 30 menit coding' },
+          'Rabu': { title: 'TOEFL / TKA', desc: '1 section TOEFL + 15 soal TKA' },
+          'Sabtu': { title: 'TOEFL / TKA', desc: '1 section TOEFL + 15 soal TKA' },
+          'Minggu': { title: 'Review', desc: 'Ringkasan mingguan' }
+        },
+        habitsConfig: [
+          {id:'sholat', label:'Sholat 5 Waktu', desc: 'Menjaga rutinitas ibadah & disiplin waktu.', xp:5},
+          {id:'olahraga', label:'Olahraga 20 Menit', desc: 'Aktivitas fisik untuk kesehatan & energi.', xp:5},
+          {id:'meditasi', label:'Meditasi 10 Menit', desc: 'Latihan mindfulness untuk mengurangi stres.', xp:5},
+          {id:'air', label:'Minum Air Putih 2L', desc: 'Menjaga hidrasi tubuh agar tetap segar.', xp:5},
+          {id:'belajar', label:'Belajar Hal Baru 20 Menit', desc: 'Dedikasikan waktu untuk upgrade diri.', xp:5},
+          {id:'todo', label:'Selesaikan 3 To-do List', desc: 'Minimal 3 tugas selesai agar produktif.', xp:5},
+          {id:'journal', label:'Journaling', desc: 'Menulis refleksi singkat di malam hari.', xp:5}
+        ],
+        habits: {} 
+    };
+    init.habitsConfig.forEach(h=> init.habits[h.id] = {done:false});
+    return init;
+}
+
+function loadData(){
+    const currentDataRaw = localStorage.getItem(getStorageKey());
+    if (currentDataRaw) {
+        let data = JSON.parse(currentDataRaw);
+        const defaults = getInitialDataStructure();
+        
+        if (!data.userProfile) data.userProfile = defaults.userProfile;
+        if (!data.focusMap) data.focusMap = defaults.focusMap;
+        if (!data.habitsConfig) data.habitsConfig = defaults.habitsConfig;
+        
+        // [UBAH] Logika migrasi untuk focusMap dari string ke object
+        if (data.focusMap && typeof data.focusMap['Senin'] === 'string') {
+            const newFocusMap = {};
+            for (const day in data.focusMap) {
+                const [title, desc] = data.focusMap[day].split('—').map(s => s.trim());
+                newFocusMap[day] = { title: title || '', desc: desc || '' };
+            }
+            data.focusMap = newFocusMap;
+        }
+        
+        if (Object.keys(data.habits).length !== data.habitsConfig.length) {
+            const newHabitsState = {};
+            data.habitsConfig.forEach(hc => {
+                newHabitsState[hc.id] = data.habits[hc.id] || { done: false };
+            });
+            data.habits = newHabitsState;
+        }
+        return data;
+    }
+    return getInitialDataStructure();
+}
+
+function saveData(){ 
+    localStorage.setItem(getStorageKey(), JSON.stringify(DATA)); 
+}
+
+// ===================================================================================
+// ============================== FUNGSI MODAL EDIT MODE =============================
+// ===================================================================================
+
+function openEditModeModal() {
+    const modal = document.getElementById('editModeModal');
+    
+    document.getElementById('edit-profile-logo').value = DATA.userProfile.logo;
+    document.getElementById('edit-profile-title').value = DATA.userProfile.title;
+    document.getElementById('edit-profile-desc').value = DATA.userProfile.description;
+    
+    // [UBAH] Buat form untuk Quest Utama dengan kolom Judul dan Deskripsi
+    const questUtamaContent = document.getElementById('edit-quest-utama-content');
+    questUtamaContent.innerHTML = '';
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    days.forEach(day => {
+        const value = DATA.focusMap[day] || { title: '', desc: '' };
+        questUtamaContent.innerHTML += `
+            <div style="background: var(--glass); padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color);">
+                <label class="small muted">${day}</label>
+                <input type="text" id="edit-focus-title-${day.toLowerCase()}" placeholder="Judul Quest" value="${value.title}" style="margin-top:4px;">
+                <input type="text" id="edit-focus-desc-${day.toLowerCase()}" placeholder="Deskripsi (opsional)" value="${value.desc}" style="margin-top:8px;">
+            </div>
+        `;
+    });
+
+    // [UBAH] Buat form untuk Daily Quest TANPA input XP
+    const dailyQuestContent = document.getElementById('edit-daily-quest-content');
+    dailyQuestContent.innerHTML = '';
+    DATA.habitsConfig.forEach((habit, index) => {
+        dailyQuestContent.innerHTML += `
+            <div style="background: var(--glass); padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border-color);">
+                <label class="small muted">Judul Daily Quest ${index + 1}</label>
+                <input type="text" id="edit-habit-label-${index}" value="${habit.label}" style="margin-top:4px;">
+                <label class="small muted" style="display:block; margin-top:8px;">Deskripsi</label>
+                <input type="text" id="edit-habit-desc-${index}" value="${habit.desc}" style="margin-top:4px;">
+            </div>
+        `;
+    });
+
+    showEditTab('profil');
+    modal.style.display = 'block';
+}
+
+function closeEditModeModal() {
+    document.getElementById('editModeModal').style.display = 'none';
+}
+
+function showEditTab(tabName) {
+    document.querySelectorAll('.edit-pane').forEach(pane => pane.style.display = 'none');
+    document.querySelectorAll('.edit-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById(`edit-${tabName}-content`).style.display = 'block';
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+
+    const titles = {
+        'profil': 'Edit Profil',
+        'quest-utama': 'Edit Quest Utama Mingguan',
+        'daily-quest': 'Edit Daily Quests'
+    };
+    document.getElementById('edit-content-title').textContent = titles[tabName];
+}
+
+function saveEditModeChanges() {
+    DATA.userProfile.logo = document.getElementById('edit-profile-logo').value;
+    DATA.userProfile.title = document.getElementById('edit-profile-title').value;
+    DATA.userProfile.description = document.getElementById('edit-profile-desc').value;
+
+    // [UBAH] Simpan data Quest Utama dari 2 input (title & desc)
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    days.forEach(day => {
+        const title = document.getElementById(`edit-focus-title-${day.toLowerCase()}`).value;
+        const desc = document.getElementById(`edit-focus-desc-${day.toLowerCase()}`).value;
+        DATA.focusMap[day] = { title, desc };
+    });
+
+    // [UBAH] Simpan data Daily Quest tanpa mengubah XP
+    DATA.habitsConfig.forEach((habit, index) => {
+        habit.label = document.getElementById(`edit-habit-label-${index}`).value;
+        habit.desc = document.getElementById(`edit-habit-desc-${index}`).value;
+        // Baris untuk menyimpan xp dihapus
+    });
+
+    saveData();
+    render();
+    closeEditModeModal();
+    showNotification('Perubahan berhasil disimpan!');
+}
+// ===================================================================================
+// ============================= FUNGSI INTI & RENDER ================================
+// ===================================================================================
+
+function todayDateObj(){ const d = new Date(); d.setDate(d.getDate() + (DATA.dayOffset||0)); return d; }
+function dateStr(d) { const year = d.getFullYear(); const month = (d.getMonth() + 1).toString().padStart(2, '0'); const day = d.getDate().toString().padStart(2, '0'); return `${year}-${month}-${day}`; }
+function computeLevel(xp){ return Math.floor(xp/100)+1; }
+function getDifficultyXP(difficulty) { const xpMap = {'Trivial': 2, 'Easy': 5, 'Medium': 10, 'Hard': 15}; return xpMap[difficulty] || 0; }
+function getDifficultyStars(difficulty) { const starMap = {'Trivial': '✦', 'Easy': '✦✦', 'Medium': '✦✦✦', 'Hard': '✦✦✦✦'}; return starMap[difficulty] || ''; }
+function getTranslatedString(key, fallback = null) { const lang = DATA.language || 'id'; if (TRANSLATIONS[key] && TRANSLATIONS[key][lang]) { return TRANSLATIONS[key][lang]; } return (TRANSLATIONS[key] && TRANSLATIONS[key]['en']) || fallback || key; }
+
+function applyTranslations() { 
+    document.querySelectorAll('[data-lang-key]').forEach(el => { el.textContent = getTranslatedString(el.getAttribute('data-lang-key')); }); 
+    document.querySelectorAll('[data-lang-key-placeholder]').forEach(el => { el.placeholder = getTranslatedString(el.getAttribute('data-lang-key-placeholder')); }); 
+}
+
+function applyTheme(themeId) { 
+    const theme = THEMES[themeId] || THEMES['viola']; 
+    for (const [key, value] of Object.entries(theme)) { document.documentElement.style.setProperty(key, value); } 
+    updateSettingsUIState(); 
+}
+
+function setLanguage(lang) { DATA.language = lang; document.documentElement.lang = lang; saveData(); render(); }
+function setTheme(themeId) { DATA.theme = themeId; applyTheme(themeId); renderChart(); saveData(); }
+
+function render(){ 
+    checkAllBadges(); 
+    
+    document.querySelector('header .logo').textContent = DATA.userProfile.logo;
+    document.querySelector('header h1').textContent = DATA.userProfile.title;
+    const leadEl = document.querySelector('header .lead');
+    leadEl.textContent = DATA.userProfile.description;
+    leadEl.removeAttribute('data-lang-key');
+    
+    const d = todayDateObj();
+    const dayName = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][d.getDay()];
+    const lang = DATA.language || 'id';
+    const dateLocale = lang === 'id' ? 'id-ID' : 'en-US';
+    const todayText = lang === 'id' ? 'Hari ini' : 'Today';
+    
+    document.getElementById('dateDisplay').textContent = `${todayText} (${d.toLocaleDateString(dateLocale, { weekday: 'long', day: 'numeric', month: 'short' })})`;
+    
+    // [UBAH] Ambil data dari object focusMap yang baru
+    const focusData = DATA.focusMap[dayName] || { title: 'Waktu Istirahat', desc: '' };
+    document.getElementById('todayFocusTitle').textContent = focusData.title;
+    document.getElementById('todayFocusDesc').textContent = focusData.desc || '';
+    
+    document.getElementById('levelNum').textContent = computeLevel(DATA.xp);
+    document.getElementById('xpTxt').textContent = DATA.xp + ' XP';
+    document.getElementById('xpFill').style.width = Math.min(100, (DATA.xp % 100)) + '%';
+
+    renderQuests(); 
+    renderStreaks(); 
+    renderBadges(); 
+    renderTodo(); 
+    renderCalendar(); 
+    renderChart(); 
+    renderQuote(); 
+    renderActivityLog(); 
+    applyTranslations();
+}
+
+function renderQuests() {
+    const mainQuestContainer = document.getElementById('mainQuestContainer');
+    const dailyQuestList = document.getElementById('dailyQuestList');
+    mainQuestContainer.innerHTML = '';
+    dailyQuestList.innerHTML = '';
+
+    const d = todayDateObj();
+    const todayStr = dateStr(d);
+    const dayName = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][d.getDay()];
+    const academicDone = (DATA.dailyHabits[todayStr] && DATA.dailyHabits[todayStr].academic) || false;
+    
+    const lang = DATA.language;
+    const completeButtonText = lang === 'id' ? 'Kerjakan' : 'Complete';
+    const doneButtonText = lang === 'id' ? 'Selesai' : 'Done';
+
+    // [UBAH] Tampilkan quest utama dari object focusMap yang baru
+    const focusData = DATA.focusMap[dayName] || { title: 'Waktu Istirahat', desc: '' };
+    const fullQuestText = focusData.desc ? `${focusData.title} — ${focusData.desc}` : focusData.title;
+
+    const mainQ = document.createElement('div');
+    mainQ.className = 'quest';
+    mainQ.innerHTML = `<div><div style="font-weight:700">${fullQuestText}</div></div><div><button class="primary" ${academicDone ? 'disabled' : ''} onclick="completeMainQuest()">${academicDone ? doneButtonText : completeButtonText}</button></div>`;
+    mainQuestContainer.appendChild(mainQ);
+
+    DATA.habitsConfig.forEach(h => {
+        const el = document.createElement('div');
+        el.className = 'quest';
+        const habitState = DATA.habits[h.id] || {done: false};
+        el.innerHTML = `<div><div style="font-weight:700">${h.label}</div><div class="small" style="margin-top:2px;">${h.desc}</div><div class="small" style="margin-top:4px;">XP: ${h.xp}</div></div><div><button class="btn" ${habitState.done ? 'disabled' : ''} onclick="toggleHabit('${h.id}')">${habitState.done ? doneButtonText : completeButtonText}</button></div>`;
+        dailyQuestList.appendChild(el);
+    });
+}
+
+// ... (Salin semua fungsi render lainnya dari file Anda, mulai dari renderStreaks() hingga renderActivityLog())
+function renderStreaks() { const streaksDisplay = document.getElementById('streaksDisplay'); streaksDisplay.innerHTML = ''; streaksDisplay.innerHTML = ` <div class="habit"> <div><div style="font-weight:700">${getTranslatedString('mainQuestStreak')}</div><div class="small">${getTranslatedString('mainQuestStreakDesc')}</div></div> <div class="streak">${DATA.mainQuestStreak || 0}🔥</div> </div> <div class="habit"> <div><div style="font-weight:700">${getTranslatedString('dailyHabitsStreak')}</div><div class="small">${getTranslatedString('dailyHabitsStreakDesc')}</div></div> <div class="streak">${DATA.habitsStreak || 0}🔥</div> </div> `; }
+function renderBadges() { const badgesArea = document.getElementById('badgesArea'); const badgeCounter = document.getElementById('badgeCounter'); badgesArea.innerHTML = ''; let unlockedCount = DATA.unlockedBadges.length; for (const categoryKey in BADGE_CATEGORIES) { const category = BADGE_CATEGORIES[categoryKey]; const badgeKeys = category.keys; let highestUnlockedIndex = -1; badgeKeys.forEach((key, index) => { if (DATA.unlockedBadges.includes(key)) highestUnlockedIndex = index; }); const nextBadgeKey = badgeKeys[highestUnlockedIndex + 1]; if (!nextBadgeKey) { const lastBadgeKey = badgeKeys[badgeKeys.length - 1]; const lastBadge = BADGE_DATABASE[lastBadgeKey]; const b = document.createElement('div'); b.className = 'badge unlocked'; b.innerHTML = `<div class="badge-title">${lastBadge.icon} ${lastBadge.title}</div><div class="small">Completed!</div><span class="tooltip">${lastBadge.desc}</span>`; badgesArea.appendChild(b); continue; }; const nextBadge = BADGE_DATABASE[nextBadgeKey]; const triggerType = nextBadge.trigger.type; const goal = nextBadge.trigger.value; let current = 0; switch (triggerType) { case 'todo_streak': current = DATA.todoStreak; break; case 'total_todos': current = DATA.totalTodosCompleted; break; case 'habit_streak': current = DATA.habitsStreak; break; case 'level': current = computeLevel(DATA.xp); break; case 'total_aq': current = DATA.totalAcademicQuestsCompleted; break; } const b = document.createElement('div'); b.className = 'badge locked'; const progressPct = Math.min(100, (current / goal) * 100); b.innerHTML = `<div class="badge-title">${nextBadge.icon} ${nextBadge.title}</div><div class="small">${current}/${goal}</div><div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${progressPct}%"></div></div><span class="tooltip">${nextBadge.desc}</span>`; badgesArea.appendChild(b); } badgeCounter.textContent = `${unlockedCount}/${Object.keys(BADGE_DATABASE).length}`; }
+function renderTodo() { const todoList = document.getElementById('todoList'); todoList.innerHTML = ''; document.getElementById('btnPending').classList.toggle('primary', todoFilter === 'pending'); document.getElementById('btnDone').classList.toggle('primary', todoFilter === 'done'); document.getElementById('btnPending').classList.toggle('btn', todoFilter !== 'pending'); document.getElementById('btnDone').classList.toggle('btn', todoFilter !== 'done'); let processedTodos = DATA.todoLog.map((t, i) => ({...t, originalIndex: i})); processedTodos = processedTodos.filter(t => { if (todoFilter === 'pending') return t.status === 'pending'; if (todoFilter === 'done') return t.status === 'done'; return true; }); switch (todoSortOrder) { case 'recent': processedTodos.sort((a, b) => b.id - a.id); break; case 'deadline_asc': processedTodos.sort((a, b) => { if (!a.deadline) return 1; if (!b.deadline) return -1; return new Date(a.deadline) - new Date(b.deadline); }); break; case 'deadline_desc': processedTodos.sort((a, b) => { if (!a.deadline) return 1; if (!b.deadline) return -1; return new Date(b.deadline) - new Date(a.deadline); }); break; } const lang = DATA.language || 'id'; const dateLocale = lang === 'id' ? 'id-ID' : 'en-US'; processedTodos.forEach(t => { const i = t.originalIndex; const div = document.createElement('div'); div.className = 'todo-item'; div.onclick = (e) => { if(e.target.type !== 'checkbox') openEditModal(i); }; const isDone = t.status === 'done'; let deadlineHTML = ''; if (t.deadline) { let tagClass = 'deadline-tag'; const deadlineDate = new Date(t.deadline + 'T00:00:00'); const today = new Date(todayDateObj().setHours(0, 0, 0, 0)); if (deadlineDate < today && !isDone) { tagClass += ' overdue'; } const tagText = deadlineDate.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' }); deadlineHTML = `<span class="${tagClass}">${tagText}</span>`; } let notesPreviewHTML = ''; if (t.notes && t.notes.trim() !== '') { const truncatedNotes = t.notes.length > 50 ? t.notes.substring(0, 50) + '...' : t.notes; notesPreviewHTML = `<div class="small muted" style="margin-top:4px; font-size:12px; white-space: pre-wrap;">${truncatedNotes}</div>`; } div.innerHTML = ` <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleTodo(${i}, event)"/> <div style="flex:1; display:flex; flex-direction: column; gap: 2px;"> <span style="text-decoration:${isDone ? 'line-through' : 'none'}; color:${isDone ? 'var(--muted)' : 'var(--text-primary)'}">${t.title || 'Tanpa Judul'}</span> ${notesPreviewHTML} <div class="row" style="align-items:center; margin-top:4px;"> <span class="small">${getDifficultyStars(t.difficulty)}</span> </div> </div> ${deadlineHTML} `; todoList.appendChild(div); }); const pendingCount = DATA.todoLog.filter(t => t.status === 'pending').length; const pendingText = lang === 'id' ? 'Tertunda' : 'Pending'; document.getElementById('todoCounter').textContent = `${pendingCount} ${pendingText}`; }
+function renderCalendar() { const grid = document.getElementById('calGrid'); grid.innerHTML = ''; const y = calendarView.year; const m = calendarView.month; const first = new Date(y,m,1); const startDay = first.getDay(); const total = new Date(y,m+1,0).getDate(); const dateLocale = DATA.language === 'id' ? 'id-ID' : 'en-US'; document.getElementById('monthLabel').textContent = first.toLocaleString(dateLocale, {month:'long', year:'numeric'}); for(let i=0;i<startDay;i++){ grid.insertAdjacentHTML('beforeend', '<div class="cell" style="cursor:default;"></div>'); } for(let day=1; day<=total; day++){ const d = new Date(y,m,day); const key = dateStr(d); const cell = document.createElement('div'); cell.className = 'cell'; cell.textContent = day; cell.onclick = () => openDailyLogModal(key); if(key === dateStr(todayDateObj())) cell.classList.add('today'); const dh = DATA.dailyHabits[key] || {}; const allDone = DATA.habitsConfig.every(h=> !!dh[h.id]); if(allDone) cell.classList.add('active'); grid.appendChild(cell); } }
+function renderChart() { const canvas = document.getElementById('xpChart'); const ctx = canvas.getContext('2d'); ctx.clearRect(0,0,canvas.width,canvas.height); const arr = []; for(let i=6;i>=0;i--){ const d = new Date(todayDateObj()); d.setDate(d.getDate()-i); const key = dateStr(d); arr.push(DATA.xpHistory[key] || 0); } const w = canvas.width; const h = canvas.height; const pad = 30; const max = Math.max(10, ...arr); ctx.strokeStyle = 'rgba(125, 125, 125, 0.1)'; ctx.lineWidth = 1; for(let g=0;g<=4;g++){ const y = pad + (h-2*pad) * (g/4); ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(w-pad,y); ctx.stroke(); } const textColor = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim(); ctx.fillStyle = textColor; ctx.font = '11px Inter, sans-serif'; const dayLabels = DATA.language === 'id' ? ['M','S','S','R','K','J','S'] : ['S','M','T','W','T','F','S']; for(let i=0;i<7;i++){ const d = new Date(todayDateObj()); d.setDate(d.getDate()-(6-i)); const lab = dayLabels[d.getDay()]; const x = pad + ( (w-2*pad) * (i / 6) ); ctx.fillText(lab, x-6, h-pad+16); } ctx.beginPath(); for(let i=0;i<7;i++){ const x = pad + ( (w-2*pad) * (i / 6) ); const y = pad + (h-2*pad) * (1 - (arr[i]/max)); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); } const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(); ctx.strokeStyle = accentColor; ctx.lineWidth = 2.5; ctx.stroke(); ctx.lineTo(w-pad, h-pad); ctx.lineTo(pad, h-pad); ctx.closePath(); const grd = ctx.createLinearGradient(0,0,0,h); const r = parseInt(accentColor.slice(1, 3), 16); const g = parseInt(accentColor.slice(3, 5), 16); const b = parseInt(accentColor.slice(5, 7), 16); grd.addColorStop(0,`rgba(${r},${g},${b},0.18)`); grd.addColorStop(1,`rgba(${r},${g},${b},0.01)`); ctx.fillStyle = grd; ctx.fill(); for(let i=0;i<7;i++){ const x = pad + ( (w-2*pad) * (i / 6) ); const y = pad + (h-2*pad) * (1 - (arr[i]/max)); ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); const cardColor = getComputedStyle(document.documentElement).getPropertyValue('--card').trim(); ctx.fillStyle = cardColor; ctx.fill(); ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fillStyle = accentColor; ctx.fill(); ctx.fillStyle = textColor; ctx.font='11px Inter'; ctx.fillText(arr[i], x-8, y-10); } }
+function renderQuote() { const today = todayDateObj(); const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24)); const authors = Object.keys(QUOTES_DB); const authorIndex = dayOfYear % authors.length; const author = authors[authorIndex]; const quotes = QUOTES_DB[author]; const quoteIndex = dayOfYear % quotes.length; const quote = quotes[quoteIndex]; document.getElementById('quoteText').textContent = `“${quote}”`; document.getElementById('quoteAuthor').textContent = `- ${author}`; }
+function renderActivityLog() { const container = document.getElementById('activityLogContainer'); container.innerHTML = ''; const lang = DATA.language || 'id'; const dateLocale = lang === 'id' ? 'id-ID' : 'en-US'; const noActivityText = lang === 'id' ? 'Belum ada aktivitas tercatat.' : 'No activity recorded yet.'; if (!DATA.activityLog || DATA.activityLog.length === 0) { container.innerHTML = `<div class="small muted" style="text-align:center;">${noActivityText}</div>`; return; } DATA.activityLog.forEach(entry => { const div = document.createElement('div'); div.className = 'log-item'; const date = new Date(entry.timestamp); const time = date.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' }); const dateString = date.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' }); div.innerHTML = ` <div class="small muted log-time">${dateString}, ${time}</div> <div>${entry.text}</div> `; container.appendChild(div); }); }
+
+// ===================================================================================
+// ============================= FUNGSI LOGIKA APLIKASI ==============================
+// ===================================================================================
+
+function addLogEntry(text) { if (!DATA.activityLog) { DATA.activityLog = []; } DATA.activityLog.unshift({ timestamp: new Date().toISOString(), text: text }); if (DATA.activityLog.length > 50) { DATA.activityLog.pop(); } }
+function checkAllBadges() { const currentLevel = computeLevel(DATA.xp); for (const key in BADGE_DATABASE) { if (DATA.unlockedBadges.includes(key)) continue; const badge = BADGE_DATABASE[key]; let conditionMet = false; switch (badge.trigger.type) { case 'todo_streak': conditionMet = DATA.todoStreak >= badge.trigger.value; break; case 'total_todos': conditionMet = DATA.totalTodosCompleted >= badge.trigger.value; break; case 'habit_streak': conditionMet = DATA.habitsStreak >= badge.trigger.value; break; case 'level': conditionMet = currentLevel >= badge.trigger.value; break; case 'total_aq': conditionMet = DATA.totalAcademicQuestsCompleted >= badge.trigger.value; break; } if (conditionMet) unlockBadge(key); } }
+function unlockBadge(key) { if (DATA.unlockedBadges.includes(key)) return; DATA.unlockedBadges.push(key); const badge = BADGE_DATABASE[key]; const notifText = (DATA.language === 'id' ? 'Badge Terbuka: ' : 'Badge Unlocked: ') + `${badge.icon} ${badge.title}`; showNotification(notifText); addLogEntry(`🏆 Badge Unlocked: <strong>${badge.title}</strong>`); }
+function showNotification(message) { const notif = document.createElement('div'); notif.className = 'notification'; notif.textContent = message; document.body.appendChild(notif); setTimeout(() => { notif.classList.add('show'); }, 10); setTimeout(() => { notif.classList.remove('show'); setTimeout(() => { notif.remove(); }, 300); }, 4000); }
+function completeMainQuest() { completeAcademic('Medium', true); }
+function completeAcademic(level, isMainQuest = false) { const today = dateStr(todayDateObj()); const xpGain = {'Easy':5,'Medium':10,'Hard':15}[level] || 10; DATA.xp += xpGain; DATA.xpHistory[today] = (DATA.xpHistory[today] || 0) + xpGain; DATA.totalAcademicQuestsCompleted++; DATA.academicQuestLog.push({ date: today, difficulty: level, xp: xpGain }); const logText = isMainQuest ? "🎯 Main Quest Completed" : `🎓 Academic Quest Completed: <strong>${level}</strong>`; addLogEntry(logText); if (!(DATA.dailyHabits[today] && DATA.dailyHabits[today].academic)) { const yesterday = dateStr(new Date(new Date().setDate(todayDateObj().getDate() - 1))); if (DATA.lastMainQuestDate === yesterday) { DATA.mainQuestStreak++; } else if (DATA.lastMainQuestDate !== today) { DATA.mainQuestStreak = 1; } DATA.lastMainQuestDate = today; if(!DATA.dailyHabits[today]) DATA.dailyHabits[today] = {}; DATA.dailyHabits[today].academic = true; } saveData(); render(); }
+function toggleHabit(id) { const h = DATA.habits[id]; if (!h || h.done) return; h.done = true; const today = dateStr(todayDateObj()); if(!DATA.dailyHabits[today]) DATA.dailyHabits[today] = {}; DATA.dailyHabits[today][id] = true; const xpGain = (DATA.habitsConfig.find(x=>x.id===id).xp || 5); DATA.xp += xpGain; DATA.xpHistory[today] = (DATA.xpHistory[today] || 0) + xpGain; const habitData = DATA.habitsConfig.find(x => x.id === id); addLogEntry(`⭐ Daily Quest Completed: <strong>${habitData.label}</strong>`); const allHabitsDoneToday = DATA.habitsConfig.every(habit => DATA.habits[habit.id] && DATA.habits[habit.id].done); if (allHabitsDoneToday) { const yesterday = dateStr(new Date(new Date().setDate(todayDateObj().getDate() - 1))); if (DATA.lastHabitsDate === yesterday) { DATA.habitsStreak++; } else if (DATA.lastHabitsDate !== today) { DATA.habitsStreak = 1; } DATA.lastHabitsDate = today; } saveData(); render(); }
+function addTodo(){ openEditModal(null); }
+function toggleTodo(i, event) { event.stopPropagation(); const todo = DATA.todoLog[i]; if (todo.status === 'done') return; todo.status = 'done'; todo.completedDate = dateStr(todayDateObj()); const xpGain = getDifficultyXP(todo.difficulty); if(xpGain > 0){ const today = dateStr(todayDateObj()); DATA.xp += xpGain; DATA.xpHistory[today] = (DATA.xpHistory[today] || 0) + xpGain; showNotification(`+${xpGain} XP!`); } addLogEntry(`✅ To-do Completed: <strong>${todo.title}</strong>`); DATA.totalTodosCompleted++; const today = dateStr(todayDateObj()); const yesterday = dateStr(new Date(new Date().setDate(todayDateObj().getDate() - 1))); if (DATA.lastTodoDate === yesterday) { DATA.todoStreak++; } else if (DATA.lastTodoDate !== today) { DATA.todoStreak = 1; } DATA.lastTodoDate = today; const doneTodayCount = DATA.todoLog.filter(t => t.completedDate === today).length; const todoHabit = DATA.habits.todo; if(doneTodayCount >= 3 && todoHabit && !todoHabit.done){ toggleHabit('todo'); } saveData(); render(); }
+function setTodoFilter(filter) { todoFilter = filter; render(); }
+function setTodoSortOrder(order) { todoSortOrder = order; const selectedValueDiv = document.getElementById('sort-selected-value'); let key, text; if (order === 'recent') { key = 'sortRecent'; text = 'Sort: Recent'; } else if (order === 'deadline_asc') { key = 'sortDeadlineAsc'; text = 'Sort: Deadline Asc'; } else { key = 'sortDeadlineDesc'; text = 'Sort: Deadline Desc'; } selectedValueDiv.textContent = getTranslatedString(key, text); render(); }
+function openEditModal(index) { editingTodoIndex = index; const modal = document.getElementById('editTodoModal'); const modalTitle = document.getElementById('modal-title'); const deleteArea = document.getElementById('delete-todo-area'); document.getElementById('todo-calendar-picker').style.display = 'none'; if (index === null) { modalTitle.textContent = getTranslatedString('addTodoTitle'); document.getElementById('todo-title').value = ''; document.getElementById('todo-notes').value = ''; setDifficultyValue('Easy'); selectedDeadline = null; updateDeadlineDisplay(); deleteArea.style.display = 'none'; } else { modalTitle.textContent = getTranslatedString('editTodoTitle'); const todo = DATA.todoLog[index]; document.getElementById('todo-title').value = todo.title; document.getElementById('todo-notes').value = todo.notes; setDifficultyValue(todo.difficulty); selectedDeadline = todo.deadline; updateDeadlineDisplay(); deleteArea.style.display = 'block'; } modal.style.display = 'block'; }
+function closeEditModal() { document.getElementById('editTodoModal').style.display = 'none'; editingTodoIndex = null; document.getElementById('custom-difficulty-dropdown').classList.remove('open'); }
+function saveTodo() { const title = document.getElementById('todo-title').value.trim(); if (!title) { alert('Title cannot be empty.'); return; } const newTodoData = { title: title, notes: document.getElementById('todo-notes').value.trim(), difficulty: document.getElementById('todo-difficulty-value').value, deadline: selectedDeadline, }; if (editingTodoIndex === null) { DATA.todoLog.push({ ...newTodoData, id: Date.now(), createdDate: dateStr(todayDateObj()), completedDate: null, status: 'pending' }); addLogEntry(`📝 To-do Created: <strong>${title}</strong>`); } else { const existingTodo = DATA.todoLog[editingTodoIndex]; DATA.todoLog[editingTodoIndex] = { ...existingTodo, ...newTodoData }; } saveData(); render(); closeEditModal(); }
+function deleteTodoInModal() { const confirmMsg = DATA.language === 'id' ? 'Apakah Anda yakin ingin menghapus To-Do ini?' : 'Are you sure you want to delete this To-Do?'; if (editingTodoIndex !== null && confirm(confirmMsg)) { const deletedTodo = DATA.todoLog.splice(editingTodoIndex, 1); addLogEntry(`🗑️ To-do Deleted: <strong>${deletedTodo[0].title}</strong>`); saveData(); render(); closeEditModal(); } }
+function toggleCalendarPicker() { const picker = document.getElementById('todo-calendar-picker'); picker.style.display = picker.style.display === 'block' ? 'none' : 'block'; if (picker.style.display === 'block') { const viewDate = selectedDeadline ? new Date(selectedDeadline + 'T00:00:00') : new Date(); deadlineCalendarView.year = viewDate.getFullYear(); deadlineCalendarView.month = viewDate.getMonth(); renderDeadlineCalendarModal(); } }
+function clearDeadline(event) { event.stopPropagation(); selectedDeadline = null; updateDeadlineDisplay(); document.getElementById('todo-calendar-picker').style.display = 'none'; }
+function updateDeadlineDisplay() { const textDisplay = document.getElementById('todo-deadline-text'); const clearBtn = document.getElementById('clear-deadline-btn'); if (!selectedDeadline) { textDisplay.textContent = getTranslatedString('noDateSet'); textDisplay.style.color = 'var(--muted)'; clearBtn.style.display = 'none'; } else { const d = new Date(selectedDeadline + 'T00:00:00'); const dateLocale = DATA.language === 'id' ? 'id-ID' : 'en-GB'; textDisplay.textContent = d.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short', year: 'numeric' }); textDisplay.style.color = 'var(--text-primary)'; clearBtn.style.display = 'block'; } }
+function selectDeadline(date) { selectedDeadline = date; updateDeadlineDisplay(); renderDeadlineCalendarModal(); setTimeout(() => { document.getElementById('todo-calendar-picker').style.display = 'none'; }, 200); }
+function prevDeadlineMonth() { const d = new Date(deadlineCalendarView.year, deadlineCalendarView.month - 1, 1); deadlineCalendarView.year = d.getFullYear(); deadlineCalendarView.month = d.getMonth(); renderDeadlineCalendarModal(); }
+function nextDeadlineMonth() { const d = new Date(deadlineCalendarView.year, deadlineCalendarView.month + 1, 1); deadlineCalendarView.year = d.getFullYear(); deadlineCalendarView.month = d.getMonth(); renderDeadlineCalendarModal(); }
+function renderDeadlineCalendarModal() { const grid = document.getElementById('deadlineCalGridModal'); grid.innerHTML = ''; const y = deadlineCalendarView.year; const m = deadlineCalendarView.month; const first = new Date(y, m, 1); const startDay = first.getDay(); const totalDays = new Date(y, m + 1, 0).getDate(); const dateLocale = DATA.language === 'id' ? 'id-ID' : 'en-US'; document.getElementById('deadlineMonthLabelModal').textContent = first.toLocaleString(dateLocale, { month: 'long', year: 'numeric' }); for (let i = 0; i < startDay; i++) { grid.insertAdjacentHTML('beforeend', '<div class="cell" style="cursor:default;"></div>'); } for (let day = 1; day <= totalDays; day++) { const d = new Date(y, m, day); const key = dateStr(d); const cell = document.createElement('div'); cell.className = 'cell'; cell.textContent = day; cell.onclick = () => selectDeadline(key); if (key === dateStr(todayDateObj())) cell.classList.add('today'); if (key === selectedDeadline) cell.classList.add('selected'); grid.appendChild(cell); } }
+function setupDropdown(dropdownId, onSelectCallback) { const dropdown = document.getElementById(dropdownId); const selectedValueDiv = dropdown.querySelector('.dropdown-selected-value'); const optionsDiv = dropdown.querySelector('.dropdown-options'); selectedValueDiv.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('open'); }); optionsDiv.querySelectorAll('.dropdown-option').forEach(option => { option.addEventListener('click', () => { const value = option.getAttribute('data-value'); if(onSelectCallback) onSelectCallback(value); dropdown.classList.remove('open'); }); }); }
+function setDifficultyValue(value) { const hiddenInput = document.getElementById('todo-difficulty-value'); const selectedValueDiv = document.getElementById('difficulty-selected-value'); const option = document.querySelector(`#custom-difficulty-dropdown .dropdown-option[data-value="${value}"]`); if (option) { hiddenInput.value = value; selectedValueDiv.innerHTML = option.innerHTML; } }
+document.addEventListener('click', (e) => { document.querySelectorAll('.custom-dropdown').forEach(dropdown => { if (!dropdown.contains(e.target)) dropdown.classList.remove('open'); }); });
+function openDailyLogModal(date) { const modal = document.getElementById('dailyLogModal'); const title = document.getElementById('dailyLogTitle'); const content = document.getElementById('dailyLogContent'); const dateLocale = DATA.language === 'id' ? 'id-ID' : 'en-US'; const d = new Date(date + 'T00:00:00'); title.textContent = d.toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); let contentHTML = `<div><strong>${getTranslatedString('xpForThatDay')}</strong> ${DATA.xpHistory[date] || 0}</div>`; let habitsHTML = `<div><strong>${getTranslatedString('dailyQuestsLabel')}</strong><div class="flexcol" style="gap:4px; margin-top:4px; padding-left:10px;">`; const dailyHabitsToday = DATA.dailyHabits[date] || {}; DATA.habitsConfig.forEach(habit => { const status = dailyHabitsToday[habit.id] ? `<span style="color:#10b981">${getTranslatedString('doneLabel')}</span>` : `<span style="color:#fca5a5">${getTranslatedString('notDoneLabel')}</span>`; habitsHTML += `<div>${habit.label}: ${status}</div>`; }); habitsHTML += '</div></div>'; contentHTML += habitsHTML; contentHTML += `<div><strong>${getTranslatedString('academicQuestsDone')}</strong> ${DATA.academicQuestLog.filter(q => q.date === date).length}</div>`; contentHTML += `<div><strong>${getTranslatedString('todosDone')}</strong> ${DATA.todoLog.filter(t => t.completedDate === date).length}</div>`; content.innerHTML = contentHTML; modal.style.display = 'block'; }
+function closeDailyLogModal() { document.getElementById('dailyLogModal').style.display = 'none'; }
+function checkForDailyReset() { const todayStr = dateStr(todayDateObj()); if (DATA.lastVisitDate !== todayStr) { console.log("New day detected, resetting daily quests..."); DATA.habitsConfig.forEach(h => { if (DATA.habits[h.id]) DATA.habits[h.id].done = false; }); DATA.lastVisitDate = todayStr; const today = todayDateObj(); if (today.getDay() === 1 && DATA.lastWeeklyReportDate !== todayStr) { showWeeklyReport(); } saveData(); } }
+function generateWeeklyReport() { const today = todayDateObj(); const lastWeek = new Date(today); lastWeek.setDate(today.getDate() - 7); const lastWeekStr = dateStr(lastWeek); let totalXp = 0, perfectDays = 0, academicQuestsDone = 0, todosCreated = 0, todosCompleted = 0; for (let i = 0; i < 7; i++) { const d = new Date(today); d.setDate(d.getDate() - i); const dateKey = dateStr(d); totalXp += DATA.xpHistory[dateKey] || 0; const habitsToday = DATA.dailyHabits[dateKey] || {}; if (DATA.habitsConfig.every(h => habitsToday[h.id])) perfectDays++; } academicQuestsDone = DATA.academicQuestLog.filter(q => q.date >= lastWeekStr).length; todosCreated = DATA.todoLog.filter(t => t.createdDate >= lastWeekStr).length; todosCompleted = DATA.todoLog.filter(t => t.completedDate && t.completedDate >= lastWeekStr).length; return { startDate: lastWeek, endDate: today, totalXp, perfectDays, academicQuestsDone, todosCreated, todosCompleted }; }
+function showWeeklyReport() { const report = generateWeeklyReport(); const modal = document.getElementById('weeklyReportModal'); const content = document.getElementById('weeklyReportContent'); const dateRange = document.getElementById('weeklyReportDateRange'); const dateLocale = DATA.language === 'id' ? 'id-ID' : 'en-US'; dateRange.textContent = `${report.startDate.toLocaleDateString(dateLocale, {day:'numeric', month:'short'})} - ${report.endDate.toLocaleDateString(dateLocale, {day:'numeric', month:'short', year:'numeric'})}`; content.innerHTML = ` <div class="row" style="justify-content:space-between;"><span>${getTranslatedString('totalXPGained')}</span> <strong>${report.totalXp} XP</strong></div> <div class="row" style="justify-content:space-between;"><span>${getTranslatedString('perfectDays')}</span> <strong>${report.perfectDays} / 7 ${getTranslatedString('daysUnit')}</strong></div> <div class="row" style="justify-content:space-between;"><span>${getTranslatedString('academicQuestsDone')}</span> <strong>${report.academicQuestsDone}</strong></div> <div class="row" style="justify-content:space-between;"><span>${getTranslatedString('todosCreated')}</span> <strong>${report.todosCreated}</strong></div> <div class="row" style="justify-content:space-between;"><span>${getTranslatedString('todosDone')}</span> <strong>${report.todosCompleted}</strong></div> `; modal.style.display = 'block'; DATA.activityLog = []; DATA.lastWeeklyReportDate = dateStr(todayDateObj()); addLogEntry("✨ Welcome to a new week! Activity log has been reset."); saveData(); }
+function closeWeeklyReportModal() { document.getElementById('weeklyReportModal').style.display = 'none'; }
+function prevMonth(){ const d = new Date(calendarView.year, calendarView.month-1,1); calendarView.year=d.getFullYear(); calendarView.month=d.getMonth(); renderCalendar(); }
+function nextMonth(){ const d = new Date(calendarView.year, calendarView.month+1,1); calendarView.year=d.getFullYear(); calendarView.month=d.getMonth(); renderCalendar(); }
+function updateSettingsUIState() { const lang = DATA.language || 'id'; document.getElementById('lang-btn-id').classList.toggle('primary', lang === 'id'); document.getElementById('lang-btn-en').classList.toggle('primary', lang === 'en'); const themeId = DATA.theme || 'viola'; document.querySelectorAll('.theme-swatch').forEach(sw => { sw.classList.remove('active'); }); const activeSwatch = document.getElementById(`theme-swatch-${themeId}`); if (activeSwatch) { activeSwatch.classList.add('active'); } }
+function openSettingsModal() { document.getElementById('settingsModal').style.display = 'block'; updateSettingsUIState(); }
+function closeSettingsModal() { document.getElementById('settingsModal').style.display = 'none'; }
+function simulateDayAdvance() { DATA.dayOffset = (DATA.dayOffset || 0) + 1; const today = todayDateObj(); const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1); const yesterdayStr = dateStr(yesterday); if (DATA.lastMainQuestDate !== yesterdayStr) DATA.mainQuestStreak = 0; if (DATA.lastHabitsDate !== yesterdayStr) DATA.habitsStreak = 0; if (DATA.lastTodoDate !== yesterdayStr) DATA.todoStreak = 0; checkForDailyReset(); saveData(); render(); const dateLocale = DATA.language === 'id' ? 'id-ID' : 'en-US'; showNotification((DATA.language === 'id' ? 'Berpindah ke hari berikutnya: ' : 'Advancing to next day: ') + today.toLocaleDateString(dateLocale)); closeSettingsModal(); }
+function exportData() { const dataStr = JSON.stringify(DATA, null, 2); const dataBlob = new Blob([dataStr], {type: "application/json"}); const url = URL.createObjectURL(dataBlob); const link = document.createElement('a'); link.href = url; const today = new Date().toISOString().slice(0, 10); link.download = `mentor_dashboard_backup_${today}.json`; link.click(); URL.revokeObjectURL(url); showNotification(getTranslatedString('dataExported', 'Data exported successfully!')); }
+function importData(event) { const file = event.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const importedData = JSON.parse(e.target.result); if (importedData.xp !== undefined && importedData.todoLog !== undefined) { const confirmMsg = getTranslatedString('importConfirm', 'Data will be overwritten. Continue?'); if(confirm(confirmMsg)) { DATA = importedData; if(DATA.dayOffset === undefined) DATA.dayOffset = 0; saveData(); location.reload(); } } else { alert(getTranslatedString('importInvalid', 'Invalid file or incorrect format.')); } } catch (error) { alert(getTranslatedString('importError', 'Failed to read file.')); console.error("Error importing data:", error); } }; reader.readAsText(file); event.target.value = ''; }
+function resetData(){ const confirmMsg = getTranslatedString('resetConfirm', 'Reset all data? This action is permanent.'); if(!confirm(confirmMsg)) return; localStorage.removeItem(getStorageKey()); location.reload(); }
+
+// ===================================================================================
+// ============================= INISIALISASI APLIKASI ===============================
+// ===================================================================================
+
+function loadAndRenderDashboard() {
+    DATA = loadData();
+    document.documentElement.lang = DATA.language || 'id';
+    applyTheme(DATA.theme || 'viola');
+    checkForDailyReset();
+    setupDropdown('custom-difficulty-dropdown', setDifficultyValue);
+    setupDropdown('sort-dropdown', setTodoSortOrder);
+    render();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    document.getElementById('register-form').addEventListener('submit', handleRegister);
+    initAuth();
+});
+</script>
+<div id="editModeModal" style="display:none;">
+  <div class="overlay" onclick="closeEditModeModal()"></div>
+  <div class="modal" style="max-width: 750px; display: flex; gap: 20px; padding: 0;">
+    <div class="edit-sidebar">
+        <h4 style="padding: 20px 20px 10px 20px; margin:0;">Edit Mode</h4>
+        <nav class="edit-nav">
+            <button id="tab-profil" class="edit-tab-btn active" onclick="showEditTab('profil')">Profil</button>
+            <button id="tab-quest-utama" class="edit-tab-btn" onclick="showEditTab('quest-utama')">Quest Utama</button>
+            <button id="tab-daily-quest" class="edit-tab-btn" onclick="showEditTab('daily-quest')">Daily Quest</button>
+        </nav>
+    </div>
+
+    <div class="edit-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <h3 id="edit-content-title" style="margin:0;">Edit Profil</h3>
+            <div>
+                <button class="btn" onclick="closeEditModeModal()">Batal</button>
+                <button class="primary" onclick="saveEditModeChanges()">Simpan Perubahan</button>
+            </div>
+        </div>
+
+        <div id="edit-profil-content" class="edit-pane">
+            <div>
+                <label class="small muted">Teks Logo (2-3 huruf)</label>
+                <input id="edit-profile-logo" type="text" placeholder="Inisial" style="margin-top:4px;" maxlength="3"/>
+            </div>
+            <div style="margin-top:12px;">
+                <label class="small muted">Judul Dasbor</label>
+                <input id="edit-profile-title" type="text" placeholder="Judul Dasbor" style="margin-top:4px;"/>
+            </div>
+            <div style="margin-top:12px;">
+                <label class="small muted">Deskripsi</label>
+                <textarea id="edit-profile-desc" placeholder="Deskripsi singkat" rows="3" style="margin-top:4px; resize: vertical;"></textarea>
+            </div>
+        </div>
+
+        <div id="edit-quest-utama-content" class="edit-pane minimal-scrollbar" style="display:none;"></div>
+        <div id="edit-daily-quest-content" class="edit-pane minimal-scrollbar" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
